@@ -21,7 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String username;
+    private String fullName;
 
     private String email;
     // password is not stored in the database

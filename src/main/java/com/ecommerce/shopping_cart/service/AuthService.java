@@ -1,4 +1,8 @@
 package com.ecommerce.shopping_cart.service;
 
-public class AuthService {
+import com.ecommerce.shopping_cart.response.SignupRequest;
+
+public interface AuthService {
+
+    String createUser(SignupRequest request);
 }
