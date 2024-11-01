@@ -22,6 +22,8 @@ import java.util.Collections;
 @EnableWebSecurity
 public class AppConfig {
 
+
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.sessionManagement(management->

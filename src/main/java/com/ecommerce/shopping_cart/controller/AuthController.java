@@ -2,7 +2,10 @@ package com.ecommerce.shopping_cart.controller;
 
 import com.ecommerce.shopping_cart.domain.USER_ROLE;
 import com.ecommerce.shopping_cart.model.User;
+import com.ecommerce.shopping_cart.model.VerificationCode;
 import com.ecommerce.shopping_cart.repository.UserRepository;
+import com.ecommerce.shopping_cart.request.LoginRequest;
+import com.ecommerce.shopping_cart.response.APIResponse;
 import com.ecommerce.shopping_cart.response.AuthResponse;
 import com.ecommerce.shopping_cart.response.SignupRequest;
 import com.ecommerce.shopping_cart.service.AuthService;
@@ -29,5 +32,22 @@ public class AuthController {
         authResponse.setUserRole(USER_ROLE.ROLE_CUSTOMER);
         return ResponseEntity.ok(authResponse);
 
+    }
+
+    @PostMapping("/sent/login-signup-otp")
+    public ResponseEntity<APIResponse> sentOtpHandler(@RequestBody VerificationCode req){
+
+        authService.sentLoginOtp(req.getEmail());
+        APIResponse authResponse=new APIResponse();
+        authResponse.setMessage("OTP Sent Successfully");
+        return ResponseEntity.ok(authResponse);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> LoginHandler(@RequestBody LoginRequest req){
+
+       AuthResponse authResponse= authService.SignIn(req);
+
+       return ResponseEntity.ok(authResponse);
     }
 }
