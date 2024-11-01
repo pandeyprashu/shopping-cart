@@ -3,9 +3,11 @@ package com.ecommerce.shopping_cart.service.impl;
 import com.ecommerce.shopping_cart.config.JwtProvider;
 import com.ecommerce.shopping_cart.domain.USER_ROLE;
 import com.ecommerce.shopping_cart.model.Cart;
+import com.ecommerce.shopping_cart.model.Seller;
 import com.ecommerce.shopping_cart.model.User;
 import com.ecommerce.shopping_cart.model.VerificationCode;
 import com.ecommerce.shopping_cart.repository.CartRepository;
+import com.ecommerce.shopping_cart.repository.SellerRepository;
 import com.ecommerce.shopping_cart.repository.UserRepository;
 import com.ecommerce.shopping_cart.repository.VerificationCodeRepository;
 import com.ecommerce.shopping_cart.request.LoginRequest;
@@ -34,6 +36,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
+    private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
     private final JwtProvider jwtProvider;
@@ -42,24 +45,31 @@ public class AuthServiceImpl implements AuthService {
     private final CustomUserServiceImpl customUserService;
 
     @Override
-    public void sentLoginOtp(String email) {
+    public void sentLoginOtp(String email,USER_ROLE role) throws Exception {
         String SIGNING_PREFIX="signing_";
+
+
         if(email.startsWith(SIGNING_PREFIX)) {
             email = email.substring(SIGNING_PREFIX.length());
         }
-            User user=userRepository.findByEmail(email);
-         //   System.out.println(email);
-            if(user==null){
-                try {
-           //         System.out.println("AuthServiceImpl Class Error occurred");
-                    throw new Exception("User not found");
 
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+
+        if(role.equals(USER_ROLE.ROLE_SELLER)){
+            Seller seller=sellerRepository.findByEmail(email);
+            if(seller==null){
+                throw new Exception("Seller not found");
             }
 
+        }else{
+            User user=userRepository.findByEmail(email);
+            if(user==null){
+                throw new Exception("User not found");
+            }
+        }
+
+
             VerificationCode isExist=verificationCodeRepository.findByEmail(email);
+            System.out.println(isExist);
             if(isExist!=null){
                 verificationCodeRepository.delete(isExist);
             }
@@ -69,6 +79,7 @@ public class AuthServiceImpl implements AuthService {
             verificationCode.setOtp(otp);
             verificationCode.setEmail(email);
             verificationCodeRepository.save(verificationCode);
+            System.out.println("OTP IS GENERATED: "+otp);
 
             //TODO send email with otp
             String subject="Ecommerce Login/Signup OTP";
@@ -146,16 +157,25 @@ public class AuthServiceImpl implements AuthService {
 
     //verify the OTP
     private Authentication authenticate(String username, String otp) {
+//        System.out.println(username);
+//        username=username.substring(7);
+//        System.out.println(username);
         UserDetails userDetails=customUserService.loadUserByUsername(username);
         if(userDetails==null){
             throw new BadCredentialsException("Invalid Username");
         }
 
+        //because email is coming seller prefix + email
+        if(username.startsWith("seller_")){
+            username=username.substring(7);
+        }
         VerificationCode verificationCode=verificationCodeRepository.findByEmail(username);
         if(verificationCode==null||!verificationCode.getOtp().equals(otp)){
+            System.out.println(otp);
             throw new BadCredentialsException("Invalid OTP");
         }
 
+        System.out.println("Sab Check hogya ");
 
 
         return new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());

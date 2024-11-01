@@ -4,6 +4,7 @@ import com.ecommerce.shopping_cart.domain.USER_ROLE;
 import com.ecommerce.shopping_cart.model.User;
 import com.ecommerce.shopping_cart.model.VerificationCode;
 import com.ecommerce.shopping_cart.repository.UserRepository;
+import com.ecommerce.shopping_cart.request.LoginOtpRequest;
 import com.ecommerce.shopping_cart.request.LoginRequest;
 import com.ecommerce.shopping_cart.response.APIResponse;
 import com.ecommerce.shopping_cart.response.AuthResponse;
@@ -35,9 +36,11 @@ public class AuthController {
     }
 
     @PostMapping("/sent/login-signup-otp")
-    public ResponseEntity<APIResponse> sentOtpHandler(@RequestBody VerificationCode req){
+    public ResponseEntity<APIResponse> sentOtpHandler(@RequestBody LoginOtpRequest req) throws Exception {
 
-        authService.sentLoginOtp(req.getEmail());
+
+
+        authService.sentLoginOtp(req.getEmail(),req.getRole());
         APIResponse authResponse=new APIResponse();
         authResponse.setMessage("OTP Sent Successfully");
         return ResponseEntity.ok(authResponse);

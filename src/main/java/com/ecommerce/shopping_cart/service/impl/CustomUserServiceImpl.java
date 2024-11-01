@@ -33,6 +33,7 @@ public class CustomUserServiceImpl implements UserDetailsService {
 
             String email=username.substring(SELLER_PREFIX.length());
             Seller seller = sellerRepository.findByEmail(email);
+            System.out.println(seller);
             if(seller!=null){
                 return buildUserDetails(seller.getEmail(),seller.getPassword(),USER_ROLE.ROLE_SELLER);
             }
